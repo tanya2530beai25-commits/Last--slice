@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LastSlice — Flash Food Deals</title>
+  <link rel="stylesheet" href="style1.css">
+  <style>
+    @keyframes scaleIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
+
+    /* ── CLAIM BUTTON ── */
+    .claim-btn {
+      background: #0d3b1e;
+      color: white;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+    }
+    .claim-btn:hover { background: #2e8b57; transform: translateY(-2px); }
+    .claim-btn:disabled { background: #4ecca3; color: #0d3b1e; cursor: default; transform: none; }
+
+    /* ── MODAL OVERLAY ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,59,30,0.5);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    /* ── CLAIM FORM MODAL ── */
+    .claim-modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 460px;
+      width: 100%;
+      animation: scaleIn 0.3s cubic-bezier(.22,1,.36,1) both;
+      box-shadow: 0 32px 80px rgba(13,59,30,0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .claim-modal-box h3 {
+      font-family: 'Playfair Display', serif;
+      color: #0d3b1e;
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+    .claim-modal-box .deal-title {
+      font-size: 0.85rem;
+      color: #4a6455;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e8f7ef;
+    }
+
+    .cm-group { margin-bottom: 16px; }
+    .cm-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #4a6455;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cm-group input,
+    .cm-group select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid rgba(46,139,87,0.25);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a2620;
+      background: #fafff9;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .cm-group input:focus,
+    .cm-group select:focus {
+      border-color: #2e8b57;
+      box-shadow: 0 0 0 3px rgba(46,139,87,0.1);
+    }
+
+    .cm-row { display: flex; gap: 12px; }
+    .cm-row .cm-group { flex: 1; }
+
+    .cm-error {
+      display: none;
+      background: #fff0eb;
+      color: #a32d0f;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.83rem;
+      margin-bottom: 14px;
+    }
+
+    .cm-submit {
+      width: 100%;
+      padding: 13px;
+      background: #0d3b1e;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.25s, transform 0.2s;
+      box-shadow: 0 6px 20px rgba(13,59,30,0.25);
+    }
+    .cm-submit:hover { background: #2e8b57; transform: translateY(-2px); }
+
+    .cm-cancel {
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      color: #4a6455;
+      border: 1.5px solid rgba(46,139,87,0.2);
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .cm-cancel:hover { background: #f0faf4; }
+
+    /* ── SUCCESS MODAL ── */
+    .success-modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 36px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: scaleIn 0.35s cubic-bezier(.22,1,.36,1) both;
+      box-shadow: 0 32px 80px rgba(13,59,30,0.3);
+    }
+    .success-modal-box .big { font-size: 3rem; margin-bottom: 10px; }
+    .success-modal-box h3 {
+      font-family: 'Playfair Display', serif;
+      color: #0d3b1e;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+    .success-modal-box p { color: #4a6455; font-size: 0.88rem; margin-bottom: 20px; }
+
+    .order-id-box {
+      background: #e8f7ef;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .order-id-box .label {
+      font-size: 0.72rem;
+      color: #4a6455;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .order-id-box .id {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: #0d3b1e;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .order-details {
+      background: #f7fcf9;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      text-align: left;
+      font-size: 0.83rem;
+      color: #4a6455;
+      line-height: 1.9;
+      border: 1px solid rgba(46,139,87,0.12);
+    }
+    .order-details strong { color: #0d3b1e; }
+
+    .got-it-btn {
+      background: #0d3b1e;
+      color: white;
+      border: none;
+      padding: 13px 32px;
+      border-radius: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(13,59,30,0.3);
+      transition: background 0.25s;
+    }
+    .got-it-btn:hover { background: #2e8b57; }
+
+    /* ── POSTED DEAL BADGE ── */
+    .new-badge {
+      background: #0d3b1e;
+      color: #4ecca3;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 50px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── DELETE BUTTON ── */
+    .delete-deal-btn {
+      background: transparent;
+      color: #e24b4a;
+      border: 1.5px solid rgba(226,75,74,0.35);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+      margin-left: 6px;
+    }
+    .delete-deal-btn:hover {
+      background: #ffeaea;
+      border-color: #e24b4a;
+      transform: translateY(-1px);
+    }
+
+    /* ── QTY STEPPER IN MODAL ── */
+    .qty-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1.5px solid rgba(46,139,87,0.25);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fafff9;
+    }
+    .qty-stepper button {
+      width: 38px; height: 42px;
+      background: transparent;
+      border: none;
+      font-size: 1.1rem;
+      color: #2e8b57;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.15s;
+    }
+    .qty-stepper button:hover { background: #e8f7ef; }
+    .qty-stepper input {
+      flex: 1;
+      text-align: center;
+      border: none !important;
+      border-left: 1px solid rgba(46,139,87,0.18) !important;
+      border-right: 1px solid rgba(46,139,87,0.18) !important;
+      border-radius: 0 !important;
+      padding: 10px 4px !important;
+      font-size: 0.95rem !important;
+      font-weight: 600 !important;
+      color: #0d3b1e !important;
+      box-shadow: none !important;
+    }
+    .qty-max-note {
+      font-size: 0.74rem;
+      color: #4a6455;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo" onclick="location.href='a.html'">
+      Last<em>Slice</em> <span class="emoji-logo">&#127829;</span>
+    </div>
+    <div class="nav-buttons">
+      <button onclick="location.href='post-deal.html'">Post a Deal</button>
+      <button onclick="location.href='signin.html'">Sign In</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Good food. Flash deals. Less waste.</h1>
+    <p>Great food deserves a second chance — and you get a great deal.</p>
+    <div class="stats">
+      <div class="stat-box"><div class="number">340+</div><div class="label">Meals saved this week</div></div>
+      <div class="stat-box"><div class="number" id="shop-count">48</div><div class="label">Local shops</div></div>
+      <div class="stat-box"><div class="number">60%</div><div class="label">Avg. discount</div></div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <span>Filter:</span>
+    <button class="active" onclick="filterDeals(this,'all')">All</button>
+    <button onclick="filterDeals(this,'bakery')">Bakery</button>
+    <button onclick="filterDeals(this,'cafe')">Cafe</button>
+    <button onclick="filterDeals(this,'pastry')">Pastry</button>
+    <button onclick="filterDeals(this,'sandwiches')">Sandwiches</button>
+  </div>
+
+  <div class="deals">
+    <h2>Today's Flash Deals &#9889;</h2>
+
+    <!-- Static cards -->
+    <div class="card" data-cat="bakery" style="border-left-color:#4ecca3;">
+      <div class="card-image" style="background:#fff8e7;">&#129360;</div>
+      <div class="card-content">
+        <span class="expires-time">&#9203; Expires 6:30 PM</span>
+        <div class="shop-name">Golden Crust Bakery</div>
+        <div class="item-name">Almond Croissant Trio</div>
+        <div class="tags">
+          <span class="tag">Bakery</span>
+          <span class="tag green">3 left</span>
+          <span class="tag gray">&#128205; 0.4 km</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:70%;"></div></div>
+        <div class="card-footer">
+          <div><span class="price-now">₹120</span><span class="price-was">₹240</span></div>
+          <div class="claim-deal">
+            <span class="badge">50% off</span>
+            <button class="claim-btn" onclick="openClaimForm(this, 'Almond Croissant Trio', 'Golden Crust Bakery', '₹120', 3)">Claim Deal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-cat="cafe" style="border-left-color:#38bdf8;">
+      <div class="card-image" style="background:#fff3e0;">&#9749;</div>
+      <div class="card-content">
+        <span class="expires-time">&#9203; Expires 7:00 PM</span>
+        <div class="shop-name">Brew & Bean</div>
+        <div class="item-name">Latte + Banana Bread</div>
+        <div class="tags">
+          <span class="tag" style="background:#fff0d6;color:#8b5e00;">Cafe</span>
+          <span class="tag green">5 left</span>
+          <span class="tag gray">&#128205; 0.7 km</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:45%;background:linear-gradient(90deg,#c9860f,#f5a623);"></div></div>
+        <div class="card-footer">
+          <div><span class="price-now">₹180</span><span class="price-was">₹300</span></div>
+          <div class="claim-deal">
+            <span class="badge" style="background:linear-gradient(135deg,#f5a623,#e8b84b);">40% off</span>
+            <button class="claim-btn" onclick="openClaimForm(this, 'Latte + Banana Bread', 'Brew &amp; Bean', '₹180', 5)">Claim Deal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-cat="pastry" style="border-left-color:#ff6b35;">
+      <div class="card-image" style="background:#fff0f5;">&#127849;</div>
+      <div class="card-content">
+        <span class="expires-time" style="color:#e24b4a;font-weight:600;">&#9203; 5:30 PM — hurry!</span>
+        <div class="shop-name">Brown's Bakery</div>
+        <div class="item-name">Assorted Doughnuts</div>
+        <div class="tags">
+          <span class="tag" style="background:#f5e5f0;color:#7a2060;">Pastry</span>
+          <span class="tag" style="background:#ffe8e8;color:#a32d2d;">1 left!</span>
+          <span class="tag gray">&#128205; 1.1 km</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:90%;background:linear-gradient(90deg,#e24b4a,#ff6b35);"></div></div>
+        <div class="card-footer">
+          <div><span class="price-now">₹90</span><span class="price-was">₹225</span></div>
+          <div class="claim-deal">
+            <span class="badge" style="background:linear-gradient(135deg,#e24b4a,#ff6b35);">60% off</span>
+            <button class="claim-btn" onclick="openClaimForm(this, 'Assorted Doughnuts', &quot;Brown's Bakery&quot;, '₹90', 1)">Claim Deal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-cat="sandwiches" style="border-left-color:#f5a623;">
+      <div class="card-image" style="background:#f0f8e8;">&#129361;</div>
+      <div class="card-content">
+        <span class="expires-time">&#9203; Expires 7:30 PM</span>
+        <div class="shop-name">Paper Cake Town</div>
+        <div class="item-name">Sandwich Box</div>
+        <div class="tags">
+          <span class="tag" style="background:#e8f4e8;color:#2e6b3b;">Sandwiches</span>
+          <span class="tag green">7 left</span>
+          <span class="tag gray">&#128205; 0.9 km</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:30%;background:linear-gradient(90deg,#2e6b3b,#4ecca3);"></div></div>
+        <div class="card-footer">
+          <div><span class="price-now">₹195</span><span class="price-was">₹300</span></div>
+          <div class="claim-deal">
+            <span class="badge" style="background:linear-gradient(135deg,#2e6b3b,#4ecca3);">35% off</span>
+            <button class="claim-btn" onclick="openClaimForm(this, 'Sandwich Box', 'Paper Cake Town', '₹195', 7)">Claim Deal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-cat="bakery" style="border-left-color:#4ecca3;">
+      <div class="card-image" style="background:#fdf3e3;">&#127843;</div>
+      <div class="card-content">
+        <span class="expires-time">&#9203; Expires 6:00 PM</span>
+        <div class="shop-name">Town Baker's</div>
+        <div class="item-name">Sushi Box</div>
+        <div class="tags">
+          <span class="tag">Bakery</span>
+          <span class="tag" style="background:#ffe8e8;color:#a32d2d;">2 left</span>
+          <span class="tag gray">&#128205; 0.4 km</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:80%;background:linear-gradient(90deg,#e24b4a,#ff6b35);"></div></div>
+        <div class="card-footer">
+          <div><span class="price-now">₹110</span><span class="price-was">₹245</span></div>
+          <div class="claim-deal">
+            <span class="badge">55% off</span>
+            <button class="claim-btn" onclick="openClaimForm(this, 'Sushi Box', &quot;Town Baker's&quot;, '₹110', 2)">Claim Deal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" data-cat="cafe" style="border-left-color:#38bdf8;">
+      <div class="card-image" style="background:#fff0fa;">&#129473;</div>
+      <div class="card-content">
+        <span class="expires-time">&#9203; Expires 7:15 PM</span>
+        <div class="shop-name">Little Flour Cafe</div>
+        <div class="item-name">Cupcake Assortment</div>
+        <div class="tags">
+          <span class="tag" style="background:#fff0d6;color:#8b5e00;">Cafe</span>
+          <span class="tag green">4 left</span>
+          <span class="tag gray">&#128205; 1.3 km</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:40%;background:linear-gradient(90deg,#c9860f,#f5a623);"></div></div>
+        <div class="card-footer">
+          <div><span class="price-now">₹165</span><span class="price-was">₹300</span></div>
+          <div class="claim-deal">
+            <span class="badge" style="background:linear-gradient(135deg,#f5a623,#e8b84b);">45% off</span>
+            <button class="claim-btn" onclick="openClaimForm(this, 'Cupcake Assortment', 'Little Flour Cafe', '₹165', 4)">Claim Deal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posted deals will be injected here -->
+    <div id="posted-deals-container"></div>
+
+  </div>
+
+  <!-- ── CLAIM FORM MODAL ── -->
+  <div class="modal-overlay" id="claim-form-modal">
+    <div class="claim-modal-box">
+      <h3>&#127829; Claim This Deal</h3>
+      <div class="deal-title" id="cf-deal-title">Almond Croissant Trio at Golden Crust Bakery — ₹120</div>
+
+      <div class="cm-error" id="cf-error">Please fill in all fields.</div>
+
+      <div class="cm-group">
+        <label>Your Name *</label>
+        <input type="text" id="cf-name" placeholder="e.g. Arjun Sharma">
+      </div>
+      <div class="cm-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="cf-phone" placeholder="e.g. 98765 43210">
+      </div>
+      <div class="cm-row">
+        <div class="cm-group">
+          <label>Pickup Time *</label>
+          <input type="time" id="cf-time">
+        </div>
+        <div class="cm-group">
+          <label>Payment Method *</label>
+          <select id="cf-payment">
+            <option value="">Choose...</option>
+            <option>Cash</option>
+            <option>UPI</option>
+            <option>Card</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cm-group">
+        <label>Quantity *</label>
+        <div class="qty-stepper">
+          <button type="button" onclick="adjustQty(-1)">−</button>
+          <input type="number" id="cf-qty" value="1" min="1" max="10" readonly>
+          <button type="button" onclick="adjustQty(1)">+</button>
+        </div>
+        <div class="qty-max-note" id="cf-qty-note">Max available: —</div>
+      </div>
+
+      <button class="cm-submit" onclick="submitClaim()">Confirm &amp; Get Order ID &#127881;</button>
+      <button class="cm-cancel" onclick="closeClaimForm()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS MODAL ── -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="success-modal-box">
+      <div class="big">&#127881;</div>
+      <h3>Deal Claimed!</h3>
+      <p>Head to the shop before the deal expires and show your Order ID.</p>
+
+      <div class="order-id-box">
+        <div class="label">Your Order ID</div>
+        <div class="id" id="s-order-id">LS-000000</div>
+      </div>
+
+      <div class="order-details" id="s-order-details"></div>
+
+      <button class="got-it-btn" onclick="closeSuccess()">Got it ✓</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-top">
+      <div>
+        <h3>Last<span>Slice</span> &#127829;</h3>
+        <p>Saving good food from going to waste — one deal at a time.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <div class="footer-links">
+          <span onclick="location.href='b.html'">Today's Deals</span>
+          <span onclick="location.href='post-deal.html'">Post a Deal</span>
+          <span onclick="location.href='how-it-works.html'">How It Works</span>
+        </div>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <div class="footer-links">
+          <span onclick="location.href='about.html'">About Us</span>
+          <span onclick="location.href='privacy.html'">Privacy Policy</span>
+          <span onclick="location.href='contact.html'">Contact</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&#169; 2026 LastSlice. Made with &#129655; to reduce food waste.</p>
+      <p>&#127793; 340+ meals saved this week</p>
+    </div>
+  </footer>
+
+  <script>
+    // ── STATE ──
+    var currentBtn = null;
+    var currentDeal = {};
+
+    // ── QTY STEPPER ──
+    function adjustQty(delta) {
+      var inp = document.getElementById('cf-qty');
+      var max = parseInt(inp.max) || 1;
+      var val = parseInt(inp.value) || 1;
+      val = Math.min(max, Math.max(1, val + delta));
+      inp.value = val;
+    }
+
+    // ── FILTER ──
+    function filterDeals(btn, cat) {
+      document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.card').forEach(card => {
+        card.style.display = (cat === 'all' || card.dataset.cat === cat) ? 'flex' : 'none';
+      });
+    }
+
+    // ── OPEN CLAIM FORM ──
+    function openClaimForm(btn, item, shop, price, maxQty, dealIndex) {
+      currentBtn = btn;
+      currentDeal = { item, shop, price, maxQty: maxQty || null, dealIndex: dealIndex != null ? dealIndex : -1 };
+      document.getElementById('cf-deal-title').textContent = item + ' at ' + shop + ' — ' + price;
+      document.getElementById('cf-name').value = '';
+      document.getElementById('cf-phone').value = '';
+      document.getElementById('cf-time').value = '';
+      document.getElementById('cf-payment').value = '';
+      // Reset qty
+      var qtyInp = document.getElementById('cf-qty');
+      qtyInp.value = 1;
+      qtyInp.max = maxQty || 99;
+      document.getElementById('cf-qty-note').textContent = maxQty ? 'Max available: ' + maxQty : '';
+      document.getElementById('cf-error').style.display = 'none';
+      document.getElementById('claim-form-modal').classList.add('open');
+    }
+
+    function closeClaimForm() {
+      document.getElementById('claim-form-modal').classList.remove('open');
+    }
+
+    // ── SUBMIT CLAIM ──
+    function submitClaim() {
+      var name    = document.getElementById('cf-name').value.trim();
+      var phone   = document.getElementById('cf-phone').value.trim();
+      var time    = document.getElementById('cf-time').value;
+      var payment = document.getElementById('cf-payment').value;
+      var qty     = parseInt(document.getElementById('cf-qty').value) || 1;
+
+      if (!name || !phone || !time || !payment) {
+        document.getElementById('cf-error').style.display = 'block';
+        return;
+      }
+
+      var orderId = 'LS-' + Math.floor(100000 + Math.random() * 900000);
+
+      // Format time to 12hr
+      var d = new Date('1970-01-01T' + time);
+      var hr = d.getHours(), mn = d.getMinutes();
+      var ampm = hr >= 12 ? 'PM' : 'AM';
+      hr = hr % 12 || 12;
+      var timeStr = hr + ':' + (mn < 10 ? '0'+mn : mn) + ' ' + ampm;
+
+      // Fill success modal
+      document.getElementById('s-order-id').textContent = orderId;
+      document.getElementById('s-order-details').innerHTML =
+        '<strong>Item:</strong> ' + currentDeal.item + '<br>' +
+        '<strong>Shop:</strong> ' + currentDeal.shop + '<br>' +
+        '<strong>Quantity:</strong> ' + qty + '<br>' +
+        '<strong>Price to pay:</strong> ' + currentDeal.price + (qty > 1 ? ' × ' + qty : '') + '<br>' +
+        '<strong>Name:</strong> ' + name + '<br>' +
+        '<strong>Pickup:</strong> ' + timeStr + '<br>' +
+        '<strong>Payment:</strong> ' + payment;
+
+      // Decrement quantity for posted deals
+      if (currentDeal.dealIndex >= 0) {
+        var deals = JSON.parse(localStorage.getItem('lastslice_deals') || '[]');
+        if (deals[currentDeal.dealIndex]) {
+          var newQty = Math.max(0, parseInt(deals[currentDeal.dealIndex].quantity) - qty);
+          deals[currentDeal.dealIndex].quantity = newQty;
+          localStorage.setItem('lastslice_deals', JSON.stringify(deals));
+        }
+      }
+
+      // Disable the original claim button
+      if (currentBtn) {
+        currentBtn.disabled = true;
+        currentBtn.textContent = 'Claimed ✓';
+      }
+
+      closeClaimForm();
+      document.getElementById('success-modal').classList.add('open');
+    }
+
+    function closeSuccess() {
+      document.getElementById('success-modal').classList.remove('open');
+    }
+
+    // Close modals on backdrop click
+    document.getElementById('claim-form-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeClaimForm();
+    });
+    document.getElementById('success-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeSuccess();
+    });
+
+    // ── LOAD POSTED DEALS FROM localStorage ──
+    var EMOJI_MAP = {
+      'Bakery':      '&#129360;',
+      'Cafe':        '&#9749;',
+      'Pastry':      '&#127849;',
+      'Sandwiches':  '&#129361;',
+      'Other':       '&#127829;'
+    };
+    var COLOR_MAP = {
+      'Bakery':     '#4ecca3',
+      'Cafe':       '#38bdf8',
+      'Pastry':     '#ff6b35',
+      'Sandwiches': '#f5a623',
+      'Other':      '#a78bfa'
+    };
+
+    function loadPostedDeals() {
+      var raw = localStorage.getItem('lastslice_deals');
+      if (!raw) return;
+      var deals = JSON.parse(raw);
+      if (!deals.length) return;
+
+      var container = document.getElementById('posted-deals-container');
+      container.innerHTML = '';
+
+      deals.forEach(function(d, i) {
+        var orig = parseFloat(d.originalPrice);
+        var deal = parseFloat(d.dealPrice);
+        var pct  = orig > 0 ? Math.round(((orig - deal) / orig) * 100) : 0;
+        var cat  = (d.category || 'Other').toLowerCase();
+        var emoji = EMOJI_MAP[d.category] || '&#127829;';
+        var color = COLOR_MAP[d.category] || '#a78bfa';
+        var dist = d.distance ? d.distance : '?';
+        var qty  = parseInt(d.quantity) || 0;
+
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.cat = cat;
+        card.style.borderLeftColor = color;
+
+        card.innerHTML =
+          '<div class="card-image" style="background:#f0faf4;font-size:2.4rem;display:flex;align-items:center;justify-content:center;min-width:95px;">' + emoji + '</div>' +
+          '<div class="card-content">' +
+            '<span class="expires-time">&#9203; Expires ' + (d.expiry || '—') + '</span>' +
+            '<div class="shop-name">' + escHtml(d.shopName) + '</div>' +
+            '<div class="item-name">' + escHtml(d.itemName) + ' <span class="new-badge">NEW</span></div>' +
+            '<div class="tags">' +
+              '<span class="tag">' + escHtml(d.category) + '</span>' +
+              '<span class="tag green">' + escHtml(qty) + ' left</span>' +
+              '<span class="tag gray">&#128205; ' + escHtml(dist) + '</span>' +
+            '</div>' +
+            '<div class="progress-track"><div class="progress-fill" style="width:15%;background:linear-gradient(90deg,#2e8b57,#4ecca3);"></div></div>' +
+            '<div class="card-footer">' +
+              '<div><span class="price-now">₹' + deal + '</span><span class="price-was">₹' + orig + '</span></div>' +
+              '<div class="claim-deal">' +
+                '<span class="badge" style="background:linear-gradient(135deg,#0d3b1e,#2e8b57);">' + pct + '% off</span>' +
+                '<button class="claim-btn" onclick="openClaimForm(this, \'' + escJs(d.itemName) + '\', \'' + escJs(d.shopName) + '\', \'₹' + deal + '\', ' + qty + ', ' + i + ')">Claim Deal</button>' +
+                '<button class="delete-deal-btn" onclick="deleteDeal(' + i + ', this)" title="Delete this deal">🗑 Delete</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    }
+
+    function deleteDeal(index, btn) {
+      if (!confirm('Remove this deal?')) return;
+      var deals = JSON.parse(localStorage.getItem('lastslice_deals') || '[]');
+      deals.splice(index, 1);
+      localStorage.setItem('lastslice_deals', JSON.stringify(deals));
+      // Remove the card from DOM
+      var card = btn.closest('.card');
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(function() { card.remove(); }, 300);
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escJs(s) {
+      return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    }
+
+    loadPostedDeals();
+  </script>
+
+</body>
+</html>

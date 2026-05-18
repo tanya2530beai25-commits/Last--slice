@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LastSlice — Sign In</title>
+  <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+
+  <nav>
+    <div class="logo" onclick="location.href='a.html'">
+      Last<em>Slice</em> <span class="emoji-logo">&#127829;</span>
+    </div>
+    <div class="nav-buttons">
+      <button onclick="location.href='b.html'">Browse Deals</button>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+    <div class="auth-card">
+
+      <div class="brand" onclick="location.href='a.html'">Last<em>Slice</em> &#127829;</div>
+      <div class="tagline">Sign in to claim deals & track your savings</div>
+
+      <div class="error-msg" id="error-msg">Please enter your email and password.</div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter your password">
+      </div>
+
+      <a href="#" class="forgot">Forgot password?</a>
+
+      <button class="submit-btn" onclick="handleSignIn()">Sign In →</button>
+
+      <div class="divider">or</div>
+
+      <button class="google-btn" onclick="handleGoogle()">
+        <span style="font-size:1.1rem;font-weight:700;color:#4285F4;">G</span>
+        Continue with Google
+      </button>
+
+      <div class="switch-link">
+        Don't have an account? <a href="#">Sign up free</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="signin.js"></script>
+
+</body>
+</html>
