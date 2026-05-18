@@ -1,0 +1,49 @@
+ .policy-hero {
+      background: linear-gradient(135deg, #d4f0e2, #e8f7ef 60%, #f7fcf9);
+      padding: 80px 48px;
+      text-align: center;
+    }
+    .policy-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: var(--green-dark);
+      margin-bottom: 10px;
+    }
+    .policy-hero p { color: var(--text-soft); font-size: 0.95rem; }
+
+    .policy-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 40px 80px;
+    }
+
+    .last-updated {
+      background: var(--green-pale);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      font-size: 0.82rem;
+      color: var(--green-brand);
+      margin-bottom: 32px;
+      border-left: 3px solid var(--green-light);
+      font-weight: 500;
+    }
+
+    .policy-body h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--green-dark);
+      margin: 36px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--green-mist);
+    }
+
+    .policy-body p, .policy-body li {
+      font-size: 0.92rem;
+      color: var(--text-soft);
+      line-height: 1.9;
+    }
+
+    .policy-body ul { padding-left: 20px; margin: 10px 0; }
+    .policy-body li { margin-bottom: 6px; }
+    .policy-body a { color: var(--green-brand); font-weight: 600; text-decoration: none; }
+    .policy-body a:hover { color: var(--green-dark); }

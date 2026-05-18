@@ -1,0 +1,137 @@
+.hiw-hero {
+      background: linear-gradient(135deg, #d4f0e2, #e8f7ef 60%, #f7fcf9);
+      padding: 90px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hiw-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -80px;
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, rgba(78,204,163,0.15), transparent);
+      border-radius: 50%;
+    }
+    .hiw-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--green-dark);
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+    .hiw-hero p { color: var(--text-soft); font-size: 1rem; max-width: 520px; margin: 0 auto; }
+
+    /* Timeline */
+    .hiw-section { max-width: 860px; margin: 0 auto; padding: 70px 40px; }
+    .hiw-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: var(--green-dark);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .intro { text-align: center; color: var(--text-soft); margin-bottom: 48px; font-size: 0.92rem; }
+
+    .timeline { display: flex; flex-direction: column; position: relative; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 37px; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--green-light), var(--green-mist));
+      border-radius: 3px;
+    }
+
+    .tl-step { display: flex; gap: 28px; align-items: flex-start; padding: 20px 0; position: relative; }
+    .tl-num {
+      width: 76px; height: 76px; min-width: 76px;
+      background: var(--green-dark);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      position: relative; z-index: 1;
+      box-shadow: 0 4px 16px rgba(13,59,30,0.3);
+      transition: transform 0.3s, background 0.3s;
+    }
+    .tl-step:hover .tl-num { transform: scale(1.08); background: var(--green-brand); }
+
+    .tl-body {
+      background: white;
+      border-radius: var(--radius);
+      padding: 22px 26px;
+      flex: 1;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--green-light);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .tl-step:hover .tl-body { transform: translateX(4px); box-shadow: var(--shadow-lg); }
+
+    .tl-icon { font-size: 1.7rem; margin-bottom: 10px; display: block; }
+    .tl-body h3 { font-size: 1.05rem; color: var(--green-dark); font-weight: 600; margin-bottom: 8px; }
+    .tl-body p  { color: var(--text-soft); font-size: 0.88rem; line-height: 1.75; }
+
+    /* Shops section */
+    .shops-bg { background: var(--green-pale); padding: 70px 40px; }
+
+    /* FAQ */
+    .faq-section { background: var(--green-dark); padding: 70px 40px; }
+    .faq-inner { max-width: 700px; margin: 0 auto; }
+    .faq-inner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: white;
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .faq-item {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: background 0.2s;
+    }
+    .faq-item.open { background: rgba(255,255,255,0.1); }
+    .faq-q {
+      padding: 18px 22px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.92rem;
+      transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--green-light); }
+    .faq-arrow { font-size: 0.85rem; transition: transform 0.3s; color: var(--green-light); }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+    .faq-a {
+      display: none;
+      padding: 0 22px 18px;
+      color: rgba(255,255,255,0.65);
+      font-size: 0.87rem;
+      line-height: 1.75;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 80px 40px;
+      background: var(--green-pale);
+    }
+    .cta-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      color: var(--green-dark);
+      margin-bottom: 12px;
+    }
+    .cta-section p { color: var(--text-soft); margin-bottom: 32px; }
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
